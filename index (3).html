@@ -1,0 +1,724 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Where in King County Should You Live? | DP Homes</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --navy: #16283F;
+      --gold: #BC9A5F;
+      --cream: #F6F2EA;
+      --white: #FFFFFF;
+      --muted: #6B6459;
+      --border: rgba(22, 40, 63, 0.1);
+      --card-shadow: 0 4px 16px rgba(22, 40, 63, 0.05);
+      --radius: 10px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background-color: var(--cream);
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      color: var(--navy);
+      line-height: 1.55;
+      padding: 24px 16px;
+      display: flex;
+      justify-content: center;
+    }
+    .quiz-container {
+      width: 100%;
+      max-width: 680px;
+      margin: 0 auto;
+    }
+    .brand-bar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 20px;
+      color: var(--navy);
+    }
+    .brand-dp { color: var(--gold); }
+    .brand-sep { color: var(--border); }
+    .card {
+      background: var(--white);
+      border-radius: var(--radius);
+      padding: 28px 24px;
+      margin-bottom: 20px;
+      box-shadow: var(--card-shadow);
+      border: 1px solid var(--border);
+    }
+    .page-title {
+      font-family: 'Fraunces', Georgia, serif;
+      font-size: 2rem;
+      font-weight: 700;
+      line-height: 1.25;
+      color: var(--navy);
+      margin-bottom: 12px;
+    }
+    .lead-text {
+      font-size: 1.05rem;
+      color: var(--muted);
+      margin-bottom: 24px;
+      line-height: 1.6;
+    }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.95rem;
+      font-weight: 600;
+      padding: 12px 24px;
+      border-radius: 6px;
+      cursor: pointer;
+      text-decoration: none;
+      transition: all 0.2s ease;
+      border: none;
+    }
+    .btn-gold {
+      background-color: var(--gold);
+      color: var(--white);
+    }
+    .btn-gold:hover {
+      background-color: #a9874e;
+    }
+    .btn-outline {
+      background-color: transparent;
+      color: var(--navy);
+      border: 1px solid var(--border);
+    }
+    .btn-outline:hover {
+      border-color: var(--gold);
+      color: var(--gold);
+    }
+    .progress-bar-wrap {
+      width: 100%;
+      height: 6px;
+      background: rgba(22, 40, 63, 0.08);
+      border-radius: 3px;
+      margin-bottom: 16px;
+      overflow: hidden;
+    }
+    .progress-bar-fill {
+      height: 100%;
+      background: var(--gold);
+      width: 0%;
+      transition: width 0.3s ease;
+    }
+    .step-label {
+      font-size: 0.78rem;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 8px;
+    }
+    .question-text {
+      font-family: 'Fraunces', Georgia, serif;
+      font-size: 1.45rem;
+      font-weight: 600;
+      color: var(--navy);
+      margin-bottom: 20px;
+      line-height: 1.35;
+    }
+    .options-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    .option-btn {
+      width: 100%;
+      text-align: left;
+      padding: 14px 18px;
+      background: var(--white);
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      color: var(--navy);
+      font-size: 0.98rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.18s ease;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .option-btn:hover {
+      border-color: var(--gold);
+      background: #faf7f2;
+      transform: translateY(-1px);
+    }
+    .option-btn.selected {
+      border-color: var(--gold);
+      background: #f4ede1;
+      font-weight: 600;
+    }
+    .quiz-nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 10px;
+    }
+    /* Results screen */
+    .result-badge {
+      display: inline-block;
+      font-size: 0.8rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--gold);
+      margin-bottom: 8px;
+    }
+    .result-title {
+      font-family: 'Fraunces', Georgia, serif;
+      font-size: 2.1rem;
+      font-weight: 700;
+      color: var(--navy);
+      margin-bottom: 16px;
+      line-height: 1.2;
+    }
+    .result-story p {
+      margin-bottom: 16px;
+      font-size: 1.02rem;
+      line-height: 1.65;
+      color: var(--navy);
+    }
+    .also-card {
+      background: #faf7f2;
+      border-left: 3px solid var(--gold);
+      padding: 16px 18px;
+      border-radius: 0 8px 8px 0;
+      margin: 22px 0 10px;
+    }
+    .also-label {
+      font-weight: 700;
+      font-size: 0.9rem;
+      color: var(--navy);
+      margin-bottom: 4px;
+    }
+    .also-text {
+      font-size: 0.96rem;
+      color: var(--muted);
+      line-height: 1.55;
+    }
+    /* Form */
+    .form-group {
+      margin-bottom: 14px;
+    }
+    .form-label {
+      display: block;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--navy);
+      margin-bottom: 5px;
+    }
+    .form-input {
+      width: 100%;
+      padding: 12px 14px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-size: 0.95rem;
+      font-family: inherit;
+      color: var(--navy);
+      background: #fff;
+    }
+    .form-input:focus {
+      outline: none;
+      border-color: var(--gold);
+      box-shadow: 0 0 0 3px rgba(188, 154, 95, 0.18);
+    }
+    .consent-text {
+      font-size: 0.78rem;
+      color: var(--muted);
+      line-height: 1.45;
+      margin: 12px 0 16px;
+    }
+    .form-success {
+      display: none;
+      background: #eef6f0;
+      color: #1e5a2f;
+      padding: 16px;
+      border-radius: 6px;
+      font-size: 0.95rem;
+      margin-top: 12px;
+      font-weight: 500;
+    }
+    .share-box {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-top: 20px;
+      padding-top: 18px;
+      border-top: 1px solid var(--border);
+      flex-wrap: wrap;
+    }
+    .share-prompt {
+      font-size: 0.9rem;
+      color: var(--muted);
+      font-weight: 500;
+    }
+    /* Dark Navy Closing CTA Card */
+    .cta-card {
+      background-color: var(--navy);
+      color: var(--white);
+      border-radius: var(--radius);
+      padding: 28px 24px;
+      margin-top: 24px;
+      box-shadow: var(--card-shadow);
+    }
+    .cta-badge {
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 8px;
+    }
+    .cta-title {
+      font-family: 'Fraunces', Georgia, serif;
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: var(--white);
+      margin-bottom: 10px;
+    }
+    .cta-desc {
+      font-size: 0.95rem;
+      color: rgba(255, 255, 255, 0.8);
+      margin-bottom: 20px;
+      line-height: 1.55;
+    }
+    .cta-buttons {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .btn-cta-gold {
+      background: var(--gold);
+      color: var(--white);
+    }
+    .btn-cta-gold:hover {
+      background: #a9874e;
+    }
+    .btn-cta-outline {
+      background: transparent;
+      color: var(--white);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+    }
+    .btn-cta-outline:hover {
+      border-color: var(--white);
+      background: rgba(255, 255, 255, 0.08);
+    }
+    .footer-bar {
+      margin-top: 24px;
+      text-align: center;
+      font-size: 0.8rem;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+    .footer-bar a {
+      color: var(--muted);
+      text-decoration: none;
+    }
+    .footer-bar a:hover {
+      color: var(--navy);
+      text-decoration: underline;
+    }
+    @media (max-width: 540px) {
+      body { padding: 16px 12px; }
+      .card { padding: 22px 18px; }
+      .page-title { font-size: 1.65rem; }
+      .question-text { font-size: 1.25rem; }
+      .share-box { flex-direction: column; align-items: flex-start; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="quiz-container">
+  <!-- Brand Bar: DP Homes Keller Williams Bellevue -->
+  <div class="brand-bar">
+    <span class="brand-dp">DP HOMES</span>
+    <span class="brand-sep">|</span>
+    <span class="brand-kw">KELLER WILLIAMS BELLEVUE</span>
+  </div>
+
+  <!-- Screen 1: Welcome Screen -->
+  <div id="welcome-screen" class="card">
+    <div class="step-label">KING COUNTY MATCH QUIZ</div>
+    <h1 class="page-title">Where in King County should you live?</h1>
+    <p class="lead-text">Twelve quick questions about your weekends, your home, and how you like to live. Takes about two minutes.</p>
+    <button id="start-btn" class="btn btn-gold">Start the quiz</button>
+  </div>
+
+  <!-- Screen 2: Question Container -->
+  <div id="question-screen" class="card" style="display: none;">
+    <div class="progress-bar-wrap">
+      <div id="progress-fill" class="progress-bar-fill"></div>
+    </div>
+    <div id="question-step" class="step-label">QUESTION 1 OF 12</div>
+    <h2 id="question-title" class="question-text"></h2>
+    <div id="options-container" class="options-grid"></div>
+    <div class="quiz-nav">
+      <button id="back-btn" class="btn btn-outline" style="visibility: hidden;">Back</button>
+    </div>
+  </div>
+
+  <!-- Screen 3: Results Screen -->
+  <div id="result-screen" style="display: none;">
+    <div class="card">
+      <span class="result-badge">YOUR RESULT</span>
+      <h2 id="result-heading" class="result-title"></h2>
+      
+      <!-- 3 Paragraph Story -->
+      <div id="result-paragraphs" class="result-story"></div>
+
+      <!-- Also Look At Card -->
+      <div class="also-card">
+        <div id="also-title" class="also-label"></div>
+        <div id="also-body" class="also-text"></div>
+      </div>
+
+      <!-- Share Box -->
+      <div class="share-box">
+        <span class="share-prompt">Send it to a friend and compare results.</span>
+        <button id="share-btn" class="btn btn-outline" style="padding: 8px 16px; font-size: 0.88rem;">Share with a friend</button>
+      </div>
+    </div>
+
+    <!-- Guide Signup Form Card (Web3Forms POST) -->
+    <div class="card">
+      <div class="step-label">PERSONALIZED GUIDE</div>
+      <h3 id="guide-headline" class="page-title" style="font-size: 1.45rem; margin-bottom: 8px;">Want a guide built just for you?</h3>
+      <p id="guide-subhead" class="lead-text" style="font-size: 0.98rem; margin-bottom: 20px;"></p>
+
+      <!-- Web3Forms POST Form -->
+      <!-- TO CONFIGURE: Replace YOUR_ACCESS_KEY on line 405 below with your actual Web3Forms access key -->
+      <form id="guide-form" action="https://api.web3forms.com/submit" method="POST">
+        <input type="hidden" name="access_key" value="YOUR_ACCESS_KEY">
+        <input type="hidden" name="subject" value="New King County Guide Request">
+        <input type="hidden" name="from_name" value="King County Quiz">
+        
+        <!-- Hidden fields for quiz context -->
+        <input type="hidden" name="matched_area" id="field_matched_area" value="">
+        <input type="hidden" name="second_place_area" id="field_second_place_area" value="">
+        <input type="hidden" name="region_chosen" id="field_region_chosen" value="">
+        <input type="hidden" name="all_answers" id="field_all_answers" value="">
+
+        <div class="form-group">
+          <label class="form-label" for="guide-name">Name *</label>
+          <input type="text" id="guide-name" name="name" class="form-input" placeholder="Your full name" required>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="guide-email">Email Address *</label>
+          <input type="email" id="guide-email" name="email" class="form-input" placeholder="you@example.com" required>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="guide-pet">Pet's Name (Optional)</label>
+          <input type="text" id="guide-pet" name="pet_name_optional" class="form-input" placeholder="Dogs, cats, or trail companions">
+        </div>
+
+        <p class="consent-text">By sending this you agree to receive your guide and occasional follow-up from Dave Piedrahita, Keller Williams Bellevue. You can unsubscribe anytime.</p>
+
+        <button type="submit" id="guide-submit-btn" class="btn btn-gold">Send me my guide</button>
+        <div id="form-feedback" class="form-success"></div>
+      </form>
+    </div>
+
+    <!-- Retake Button Card -->
+    <div style="text-align: center; margin: 18px 0 8px;">
+      <button id="retake-btn" class="btn btn-outline">Take it again and try a different region</button>
+    </div>
+
+    <!-- Dave Piedrahita DP Homes Closing Card -->
+    <div class="cta-card">
+      <div class="cta-badge">LET'S TALK</div>
+      <h3 class="cta-title">Exploring King County Real Estate?</h3>
+      <p class="cta-desc">Whether you're shopping neighborhoods or planning your next move, get honest, on-the-ground guidance from an Eastside & King County specialist.</p>
+      <div class="cta-buttons">
+        <a href="tel:2067193059" class="btn btn-cta-gold">Call/Text (206) 719-3059</a>
+        <a href="mailto:davepiedrahita@kw.com" class="btn btn-cta-outline">Email Dave</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Standard Footer -->
+  <div class="footer-bar">
+    <p>Dave Piedrahita | Keller Williams Bellevue | <a href="tel:2067193059">206.719.3059</a> | <a href="https://davephomes.com" target="_blank" rel="noopener">davephomes.com</a></p>
+  </div>
+</div>
+
+<script>
+const QUIZ_DATA = {"meta": {"title": "Where in King County Should You Live?", "welcome": {"headline": "Where in King County should you live?", "body": "Twelve quick questions about your weekends, your home, and how you like to live. Takes about two minutes.", "button": "Start the quiz"}, "agent": "Dave Piedrahita", "brokerage": "Keller Williams Bellevue", "phone": "206.719.3059", "website": "davephomes.com", "footer": "Dave Piedrahita | Keller Williams Bellevue | 206.719.3059 | davephomes.com", "result_title_format": "Your match: {area}", "also_format": "If you like {area}, also look at:", "guide_cta": {"headline": "Want a guide built just for you?", "body": "Tell me where to send it and I will put together a personalized guide to {area}.", "fields": ["name", "email", "pet_name_optional"], "consent": "By sending this you agree to receive your guide and occasional follow-up from Dave Piedrahita, Keller Williams Bellevue. You can unsubscribe anytime.", "button": "Send me my guide", "hidden_fields_to_submit": ["matched_area", "second_place_area", "region_chosen", "all_answers"]}, "share": {"text": "I got {area} on the King County match quiz. Where would you land?", "button": "Share with a friend", "prompt": "Send it to a friend and compare results."}, "retake_button": "Take it again and try a different region", "scoring_rules": {"points": "Each answer gives strong fit areas 2 points and partial fit areas 1 point.", "weights": "Questions with weight 2 (practical) multiply their points by 2. Weight 1 questions count once.", "region_filter": "Q1 only filters which areas can win. seattle = BAL, CAP, QA, GL, WS, CC. eastside = BEL, KIR, RED, ISS, SAM, WOO. south = REN, KNT, MV, DM, ENU. all = all 17.", "tiebreak": "1) higher subtotal from weight 2 questions, 2) higher points from Q12, 3) fixed order as listed in areas.", "no_points": "Answers with no listed areas (Q4 mix, Q5 none, Q10 nopets, Q10 cat strong list) score nothing for that tier.", "second_place": "Record the runner-up area for the hidden form field only. Never show it on screen."}}, "regions": {"seattle": ["BAL", "CAP", "QA", "GL", "WS", "CC"], "eastside": ["BEL", "KIR", "RED", "ISS", "SAM", "WOO"], "south": ["REN", "KNT", "MV", "DM", "ENU"], "all": ["BAL", "CAP", "QA", "GL", "WS", "CC", "BEL", "KIR", "RED", "ISS", "SAM", "WOO", "REN", "KNT", "MV", "DM", "ENU"]}, "areas": {"BAL": "Ballard", "CAP": "Capitol Hill", "QA": "Queen Anne", "GL": "Green Lake", "WS": "West Seattle", "CC": "Columbia City", "BEL": "Bellevue", "KIR": "Kirkland", "RED": "Redmond", "ISS": "Issaquah", "SAM": "Sammamish", "WOO": "Woodinville", "REN": "Renton", "KNT": "Kent", "MV": "Maple Valley", "DM": "Des Moines", "ENU": "Enumclaw"}, "questions": [{"id": "Q1", "weight": 0, "role": "region_filter", "text": "Where are you open to living?", "answers": [{"id": "seattle", "label": "Seattle"}, {"id": "eastside", "label": "The Eastside"}, {"id": "south", "label": "South King County"}, {"id": "all", "label": "Surprise me, all of King County"}]}, {"id": "Q2", "weight": 1, "text": "Your perfect Saturday morning?", "answers": [{"id": "coffee", "label": "Coffee and a farmers market stroll", "strong": ["BAL", "CC", "WS", "KIR"], "partial": ["QA", "ISS", "REN"]}, {"id": "trail", "label": "At a trailhead by 8", "strong": ["ISS", "ENU", "MV"], "partial": ["RED", "SAM", "WOO"]}, {"id": "brunch", "label": "Brunch with friends", "strong": ["CAP", "BAL", "KIR", "BEL"], "partial": ["WS", "QA", "GL"]}, {"id": "yard", "label": "Puttering in the yard", "strong": ["SAM", "MV", "ENU", "KNT"], "partial": ["REN", "WOO", "DM"]}, {"id": "water", "label": "Out on the water", "strong": ["KIR", "WS", "DM", "GL"], "partial": ["QA", "SAM", "MV"]}]}, {"id": "Q3", "weight": 1, "text": "Pick your view.", "answers": [{"id": "city", "label": "City lights", "strong": ["CAP", "QA", "BEL"], "partial": ["BAL", "WS", "CC"]}, {"id": "mountains", "label": "Mountains", "strong": ["ISS", "ENU", "MV"], "partial": ["RED", "SAM", "WOO"]}, {"id": "water", "label": "Water", "strong": ["KIR", "WS", "DM", "GL"], "partial": ["QA", "BAL", "SAM", "BEL"]}, {"id": "evergreens", "label": "Big evergreens", "strong": ["ISS", "MV", "ENU", "SAM", "WOO"], "partial": ["RED", "DM"]}, {"id": "backyard", "label": "My own backyard", "strong": ["SAM", "MV", "KNT", "REN"], "partial": ["ENU", "WOO", "RED", "ISS"]}]}, {"id": "Q4", "weight": 2, "text": "How do you like to get around?", "answers": [{"id": "walk", "label": "Walk everywhere", "strong": ["CAP", "BAL", "QA", "CC", "GL"], "partial": ["KIR", "BEL"]}, {"id": "transit", "label": "Light rail or bus", "strong": ["CAP", "CC", "BEL", "RED"], "partial": ["GL", "KIR", "DM"]}, {"id": "bike", "label": "Bike", "strong": ["BAL", "GL", "RED", "KIR", "CAP"], "partial": ["BEL", "WOO", "CC"]}, {"id": "car", "label": "Car, no problem", "strong": ["SAM", "MV", "ENU", "ISS", "KNT", "REN", "WOO"], "partial": ["DM", "BEL", "KIR"]}, {"id": "mix", "label": "A mix", "strong": [], "partial": []}]}, {"id": "Q5", "weight": 2, "text": "Where is your work week?", "answers": [{"id": "downtown", "label": "Downtown Seattle", "strong": ["QA", "CAP", "BAL", "WS", "CC", "GL"], "partial": ["BEL", "REN"]}, {"id": "eastside", "label": "Eastside tech hubs", "strong": ["BEL", "RED", "KIR", "SAM", "ISS"], "partial": ["WOO"]}, {"id": "remote", "label": "Remote or hybrid", "strong": ["ENU", "MV", "WOO", "SAM", "ISS"], "partial": ["DM", "KNT", "REN", "KIR"]}, {"id": "south", "label": "South end (airport, Kent Valley)", "strong": ["KNT", "REN", "DM", "MV"], "partial": ["CC", "ENU"]}, {"id": "none", "label": "Not a factor", "strong": [], "partial": []}]}, {"id": "Q6", "weight": 2, "text": "Your dream home?", "answers": [{"id": "condo", "label": "A lock-and-leave condo or townhome", "strong": ["BEL", "CAP", "BAL", "KIR", "RED"], "partial": ["QA", "CC", "GL"]}, {"id": "character", "label": "An older home with character", "strong": ["QA", "GL", "WS", "CC", "BAL", "KIR", "REN"], "partial": ["BEL", "DM", "CAP"]}, {"id": "newer", "label": "Newer construction", "strong": ["SAM", "ISS", "MV", "RED"], "partial": ["KNT", "REN", "BEL", "WOO"]}, {"id": "biglot", "label": "A big lot with room to spread out", "strong": ["WOO", "MV", "KNT", "ENU", "REN", "SAM"], "partial": ["ISS", "DM"]}, {"id": "acreage", "label": "Acreage", "strong": ["ENU", "MV", "WOO"], "partial": ["SAM"]}]}, {"id": "Q7", "weight": 1, "text": "Your Friday night?", "answers": [{"id": "brewery", "label": "A neighborhood brewery", "strong": ["BAL", "WOO", "CC", "ISS", "KIR"], "partial": ["CAP", "WS", "REN"]}, {"id": "dinner", "label": "A nice dinner out", "strong": ["BEL", "KIR", "QA", "WOO"], "partial": ["CAP", "WS", "RED"]}, {"id": "music", "label": "Live music or a show", "strong": ["CAP", "BAL", "QA"], "partial": ["BEL", "KIR", "CC"]}, {"id": "bbq", "label": "A backyard BBQ", "strong": ["SAM", "MV", "KNT", "REN", "ENU"], "partial": ["WS", "ISS", "DM"]}, {"id": "hike", "label": "Early night, early hike", "strong": ["ISS", "ENU", "MV"], "partial": ["SAM", "RED"]}]}, {"id": "Q8", "weight": 2, "text": "How close do you want your neighbors?", "answers": [{"id": "close", "label": "Close enough to borrow sugar", "strong": ["CAP", "BAL", "QA", "CC", "GL"], "partial": ["BEL", "KIR", "WS"]}, {"id": "friendly", "label": "Friendly but spaced out", "strong": ["KIR", "WS", "REN", "RED", "ISS", "KNT", "DM"], "partial": ["GL", "BEL", "SAM"]}, {"id": "space", "label": "Lots of space between us", "strong": ["SAM", "MV", "WOO", "ENU"], "partial": ["ISS", "KNT"]}, {"id": "private", "label": "I would rather not see them", "strong": ["ENU", "MV", "WOO"], "partial": ["SAM"]}]}, {"id": "Q9", "weight": 2, "text": "Pick your trade-off.", "answers": [{"id": "location", "label": "Smaller home, prime location", "strong": ["CAP", "BAL", "QA", "GL", "CC", "BEL", "KIR"], "partial": ["WS", "RED"]}, {"id": "bigger", "label": "Bigger home, a little farther out", "strong": ["SAM", "ISS", "KNT", "REN", "DM"], "partial": ["MV", "RED", "WOO"]}, {"id": "middle", "label": "Somewhere in the middle", "strong": ["RED", "ISS", "WS", "REN", "KIR", "DM"], "partial": ["BEL", "SAM", "GL"]}, {"id": "stretch", "label": "Space and location, and I will stretch the budget", "strong": ["BEL", "KIR", "QA", "GL", "SAM"], "partial": ["BAL", "RED", "WS"]}]}, {"id": "Q10", "weight": 1, "text": "Who else is moving in?", "answers": [{"id": "offleash", "label": "A dog who needs off-leash parks", "strong": ["RED", "BAL", "WS"], "partial": ["KIR", "GL", "ISS", "REN"]}, {"id": "trail", "label": "A trail dog", "strong": ["ISS", "ENU", "MV", "SAM"], "partial": ["RED", "WOO", "GL"]}, {"id": "yard", "label": "A yard dog", "strong": ["SAM", "MV", "KNT", "REN", "WOO", "ENU"], "partial": ["ISS", "DM"]}, {"id": "cat", "label": "A cat who doesn't care", "strong": [], "partial": ["CAP", "BEL", "BAL", "QA", "KIR"]}, {"id": "nopets", "label": "No pets", "strong": [], "partial": []}]}, {"id": "Q11", "weight": 1, "text": "Your weekend escape?", "answers": [{"id": "pass", "label": "Snoqualmie Pass", "strong": ["ISS", "ENU", "MV"], "partial": ["SAM", "RED", "KNT"]}, {"id": "sanjuans", "label": "The San Juans", "strong": ["BAL", "WS", "QA"], "partial": ["GL", "KIR", "DM"]}, {"id": "wine", "label": "Wine tasting", "strong": ["WOO", "KIR"], "partial": ["RED", "BEL", "SAM"]}, {"id": "town", "label": "Stay in town for events", "strong": ["CAP", "BAL", "QA", "CC", "BEL"], "partial": ["KIR", "GL"]}, {"id": "home", "label": "Home is the escape", "strong": ["SAM", "MV", "ENU", "WOO", "KNT"], "partial": ["REN", "ISS"]}]}, {"id": "Q12", "weight": 1, "tiebreak_question": true, "text": "Pick your vibe.", "answers": [{"id": "buzzing", "label": "Buzzing", "strong": ["CAP", "BAL", "BEL"], "partial": ["QA", "CC"]}, {"id": "polished", "label": "Polished", "strong": ["BEL", "KIR", "QA"], "partial": ["RED", "ISS", "SAM"]}, {"id": "laidback", "label": "Laid-back", "strong": ["WS", "CC", "GL", "REN", "DM"], "partial": ["BAL", "KNT", "ISS"]}, {"id": "outdoorsy", "label": "Outdoorsy", "strong": ["ISS", "ENU", "MV"], "partial": ["WS", "SAM", "RED", "GL"]}, {"id": "smalltown", "label": "Small-town", "strong": ["ENU", "ISS", "WOO", "MV"], "partial": ["KIR", "REN", "DM"]}]}], "result_assembly": "Result story = q2 opening (matched on the Q2 answer id, else q2_default) + middle + q7 closing (matched on the Q7 answer id, else q7_default) + closer. Then the also_format line followed by the area's also text. Render as 3 short paragraphs: opening and middle together, then the evening line, then the closer. Do not add, remove, or reword any copy.", "results": {"BAL": {"q2": {"coffee": "Your Saturday begins with a walk to the corner coffee shop, and on Sunday the farmers market takes over Ballard Avenue.", "brunch": "Your Saturday centers on brunch, with a table of friends and a full stretch of Ballard Avenue to choose from."}, "q2_default": "Your Saturday has plenty of directions to go in Ballard, and most of them are a short walk from each other.", "middle": "Golden Gardens beach and the Burke-Gilman Trail are close, and the Ballard Locks are worth a wander. Homes run from craftsman houses with character to newer townhomes and condos you can lock up and leave.", "q7": {"brewery": "Evenings end at one of the neighborhood breweries, and home is a short walk away.", "music": "Evenings mean live music at the neighborhood venues, with a walk home afterward."}, "q7_default": "Evenings offer plenty of choices on foot, from dinner to a pint to a show.", "closer": "Ballard gives you city energy with a neighborhood feel, and you don't have to choose between them.", "also": "Fremont for a quirkier, artsier feel, or Phinney Ridge for a more residential, peaceful setting."}, "CAP": {"q2": {"brunch": "Your Saturday centers on brunch, with a table of friends and a whole stretch of Pike/Pine and Broadway to choose from.", "coffee": "Your Saturday begins with a coffee on Broadway, and the Capitol Hill farmers market is a short walk away."}, "q2_default": "Your Saturday has a lot of directions to go on Capitol Hill, and you can reach most of them on foot.", "middle": "Cal Anderson Park and Volunteer Park are both close, and the light rail station puts the rest of the city minutes away. Homes run from brick buildings with character to modern condos to classic houses on tree-lined streets near Volunteer Park.", "q7": {"music": "Evenings are for live music, with venues and theaters close enough to walk home afterward.", "dinner": "Evenings are for dinner, with some of the city's best restaurants within a few blocks.", "brewery": "Evenings end at a brewery on Pike/Pine, and home is a short walk away."}, "q7_default": "Evenings offer plenty of choices within walking distance, from dinner to a show to a late stroll.", "closer": "Capitol Hill puts you in the middle of everything, and the car can stay parked for days.", "also": "Eastlake for the same city energy with a lakeside setting."}, "QA": {"q2": {"coffee": "Your Saturday begins with a coffee on Queen Anne Avenue, then a walk up the hill.", "brunch": "Your Saturday centers on brunch on the Avenue, with a table of friends and a view waiting afterward.", "water": "Your Saturday starts with the water in view, from Kerry Park looking out over Elliott Bay."}, "q2_default": "Your Saturday has a great start on Queen Anne, with Kerry Park and Seattle Center both close by.", "middle": "Kerry Park puts the skyline, the water, and on a clear day Mount Rainier on display. Homes include classic brick and craftsman houses on the hill, condos with views, and townhomes on tree-lined streets.", "q7": {"dinner": "Evenings are for dinner on the Avenue or a short trip downtown.", "music": "Evenings mean a show at Seattle Center, minutes from home."}, "q7_default": "Evenings offer dinner, a show, or a walk with a view.", "closer": "Queen Anne gives you a front-row seat to Seattle and a neighborhood to come home to.", "also": "Magnolia for more space, a peaceful setting, and big water views."}, "GL": {"q2": {"water": "Your Saturday starts on the water, with rowers and paddleboarders out on Green Lake.", "brunch": "Your Saturday centers on brunch near the lake, followed by a loop around the water with friends."}, "q2_default": "Your Saturday starts with a loop around Green Lake, on foot, on skates, or by bike.", "middle": "Woodland Park is just up the hill when you want more room to roam. Homes include craftsman bungalows and charming older houses a few blocks from the water.", "q7": {}, "q7_default": "Evenings mean a stroll to dinner in the neighborhood, then home.", "closer": "Green Lake keeps the water, the trails, and the neighborhood feel in one place.", "also": "Maple Leaf for a similar neighborhood feel, often priced lower. Shoreline, just north of the city, for more yard space, also often priced lower."}, "WS": {"q2": {"coffee": "Your Saturday begins with coffee at the Junction, and on Sunday the farmers market fills the street.", "water": "Your Saturday starts on the Alki Trail, with the water beside you and the skyline across the bay.", "brunch": "Your Saturday centers on brunch in the Junction or at Alki, with a table of friends and the water nearby."}, "q2_default": "Your Saturday has the water and the skyline in view, and Alki is a short ride away.", "middle": "Lincoln Park offers forest trails and beach in one stop. Homes include craftsmans with a view, mid-century houses with a yard, and newer townhomes.", "q7": {"brewery": "Evenings end at a neighborhood brewery in the Junction, then home.", "dinner": "Evenings mean dinner in the Admiral District or the Junction.", "bbq": "Evenings mean the grill and a yard with room to host."}, "q7_default": "Evenings offer dinner in the neighborhood, then home to the water views.", "closer": "West Seattle has the water, the views, and a real neighborhood feel, with downtown a short ride away.", "also": "Burien for a similar waterfront feel with more space, often priced lower."}, "CC": {"q2": {"coffee": "Your Saturday begins with coffee on Rainier Avenue in the historic district, with the neighborhood farmers market close by."}, "q2_default": "Your Saturday starts on Rainier Avenue in the historic district, with shops and restaurants all within a short walk.", "middle": "Seward Park and Lake Washington are minutes away, with a shoreline loop for walking and biking. Homes include craftsmans, bungalows, and newer townhomes near the light rail station.", "q7": {"brewery": "Evenings end at a neighborhood brewery, then home on foot.", "music": "Evenings mean live music nearby, with home a short walk away."}, "q7_default": "Evenings offer dinner at one of the neighborhood restaurants, then home.", "closer": "Columbia City pairs a walkable main street with light rail and the lake.", "also": "Beacon Hill for light rail access and close-in views of downtown."}, "BEL": {"q2": {"brunch": "Your Saturday centers on brunch, with a table of friends and plenty of choices around Downtown Bellevue."}, "q2_default": "Your Saturday has plenty of directions in Bellevue, from Downtown Park to the Meydenbauer Bay waterfront.", "middle": "Downtown Park, Meydenbauer Bay, and the Botanical Garden are all close, and light rail connects you to Seattle and Redmond. Homes include high-rise condos, modern townhomes, and established neighborhoods with mid-century and newer houses.", "q7": {"dinner": "Evenings are for dinner, with some of the Eastside's best restaurants within a few blocks.", "music": "Evenings mean a show or a concert, with Downtown Bellevue's venues close to home."}, "q7_default": "Evenings offer dinner, a walk through the park, or a night in the city, all close to home.", "closer": "Bellevue puts city energy, green space, and the water within the same few miles.", "also": "Mercer Island for an island setting, often priced higher. Newcastle for more space and hillside views, often priced lower."}, "KIR": {"q2": {"coffee": "Your Saturday begins with coffee on Lake Street, then a walk along the Kirkland waterfront.", "brunch": "Your Saturday centers on brunch downtown, with a table of friends and the lake a few steps away.", "water": "Your Saturday starts at the water, with Marina Park, kayaks, and Lake Washington in front of you."}, "q2_default": "Your Saturday has plenty of directions in Kirkland, and the waterfront is a short walk from most of them.", "middle": "Marina Park and Houghton Beach are on the lake, and the Cross Kirkland Corridor trail runs through town for walking and biking. Homes include waterfront condos, townhomes near downtown, and established neighborhoods with character.", "q7": {"brewery": "Evenings end at a downtown brewery, then home for a short walk.", "dinner": "Evenings are for dinner downtown, with the lake as the backdrop.", "music": "Evenings mean live music downtown, with a walk home along the water."}, "q7_default": "Evenings offer dinner by the water, then a stroll along the waterfront.", "closer": "Kirkland gives you the lake, the trails, and a walkable downtown in one place.", "also": "Kenmore for a similar lake and trail feel, often priced lower."}, "RED": {"q2": {"trail": "Your Saturday starts early on the Sammamish River Trail, with Marymoor Park just a short ride away."}, "q2_default": "Your Saturday has plenty of directions in Redmond, and trails run through most of them.", "middle": "Marymoor Park and the Sammamish River Trail make it easy to get outside, and light rail and the commute routes connect you to the rest of the Eastside and Seattle. Homes include new townhomes and condos near downtown, and houses with yards in established neighborhoods.", "q7": {"dinner": "Evenings are for dinner downtown or at Redmond Town Center.", "hike": "Evenings end early, with a trail ready for you in the morning."}, "q7_default": "Evenings offer dinner in downtown Redmond, then a walk along the river.", "closer": "Redmond keeps the trails, the parks, and the commute options within easy reach.", "also": "Bothell for similar trail and commute access, often priced lower."}, "ISS": {"q2": {"trail": "Your Saturday starts early on Tiger Mountain, with Cougar and Squak close behind.", "coffee": "Your Saturday begins with coffee at Gilman Village, then a walk through the shops and trails nearby."}, "q2_default": "Your Saturday has plenty of directions in Issaquah, and most of them lead to a trail.", "middle": "Tiger, Cougar, and Squak Mountains are right at the edge of town, and Lake Sammamish State Park is close by. Homes include newer construction in the Highlands, townhomes near the town center, and houses with room and mountain views.", "q7": {"brewery": "Evenings end at a neighborhood brewery, then home with the mountains in view.", "hike": "Evenings end early, with the trailhead only minutes from your door.", "bbq": "Evenings mean the grill and a yard with a mountain backdrop."}, "q7_default": "Evenings offer dinner in town, then home with the mountains in the background.", "closer": "Issaquah puts the mountains at your back door and the city within reach.", "also": "Snoqualmie or North Bend for more mountain and more space, often priced lower."}, "SAM": {"q2": {"yard": "Your Saturday starts at home, with a yard that gives you plenty to work on.", "water": "Your Saturday starts at Lake Sammamish, with Pine Lake and Beaver Lake close behind.", "trail": "Your Saturday starts early on the plateau's trail network, with Soaring Eagle Park close by."}, "q2_default": "Your Saturday has plenty of room on the plateau, with parks and trails in every direction.", "middle": "Lake Sammamish, Pine Lake Park, and Soaring Eagle Regional Park are all close. Homes tend toward newer construction on larger lots, with room for a yard, a garage, and a good deal of space inside.", "q7": {"bbq": "Evenings mean the grill and a yard with room to host.", "hike": "Evenings end early, with a trail ready for you in the morning."}, "q7_default": "Evenings offer dinner at home or at Sammamish Commons, then a peaceful night in your own space.", "closer": "Sammamish gives you space inside and out, with the lake and the trails close by.", "also": "Fall City for more rural land and room to spread out, often priced lower."}, "WOO": {"q2": {"trail": "Your Saturday starts early on the Sammamish River Trail, right through the heart of town.", "yard": "Your Saturday starts at home, with a lot that gives you room to garden and build."}, "q2_default": "Your Saturday has plenty of directions in Woodinville, from the river trail to the tasting rooms.", "middle": "Wine country is on your doorstep, with tasting rooms in the Warehouse District and the Hollywood District, and the Sammamish River Trail runs through town. Homes include houses on larger lots, some with acreage, plus townhomes near downtown.", "q7": {"brewery": "Evenings end at a local brewery or a tasting room, then home.", "dinner": "Evenings are for dinner in wine country, with a short drive home."}, "q7_default": "Evenings offer a tasting room, a walk along the river, or dinner in town.", "closer": "Woodinville gives you wine country, open space, and the trail all within a few minutes.", "also": "Duvall for a more rural, small-town feel, often priced lower."}, "REN": {"q2": {"coffee": "Your Saturday begins with coffee in downtown Renton, then a walk along the Cedar River.", "yard": "Your Saturday starts at home, with a yard that gives you room to work and a lake a short drive away."}, "q2_default": "Your Saturday has plenty of directions in Renton, from Lake Washington to the Cedar River Trail.", "middle": "Gene Coulon Park puts the lake, a beach, and a boardwalk in one place, and the Cedar River Trail runs through town. Homes include craftsman houses with character, established neighborhoods with room for a yard, and newer townhomes near The Landing.", "q7": {"brewery": "Evenings end at a local brewery, then home.", "bbq": "Evenings mean the grill and a yard with room to host."}, "q7_default": "Evenings offer dinner at The Landing or along the lake, then home.", "closer": "Renton gives you the lake, the trails, and easy access to Seattle and the Eastside from one spot.", "also": "Newcastle for hillside views and more space, often priced higher."}, "KNT": {"q2": {"yard": "Your Saturday starts at home, with a yard that gives you plenty to work on."}, "q2_default": "Your Saturday has plenty of directions in Kent, from the Green River Trail to Lake Meridian.", "middle": "The Green River Trail runs through town, Lake Meridian Park is a favorite for summer days, and Kent Station has dining and shopping in one walkable spot. Homes tend toward houses with yards and room for a garage, with newer neighborhoods on the hillsides.", "q7": {"bbq": "Evenings mean the grill and a yard with room to host."}, "q7_default": "Evenings offer dinner at Kent Station or a night in at home.", "closer": "Kent gives you space to spread out, with trails and a lake close by.", "also": "Auburn for similar value and more room to spread out."}, "MV": {"q2": {"trail": "Your Saturday starts early on the Cedar River Trail, with the forest right outside town.", "yard": "Your Saturday starts at home, with a lot that gives you room to garden and build.", "water": "Your Saturday starts at Lake Wilderness, with a beach and paddle-ready shoreline."}, "q2_default": "Your Saturday has plenty of directions in Maple Valley, and most of them have trees around them.", "middle": "Lake Wilderness Park and the Arboretum are the heart of town, with the Cedar River Trail close by. Homes include newer construction in planned neighborhoods and houses on larger lots with room to spread out.", "q7": {"bbq": "Evenings mean the grill and a big yard under tall trees.", "hike": "Evenings end early, with the trail ready for you in the morning."}, "q7_default": "Evenings offer dinner at home, with the forest as a backdrop.", "closer": "Maple Valley gives you lakes, trails, and space, with a newer home to come back to.", "also": "Covington for a similar feel with newer homes near the shopping. Black Diamond for a more rural edge and more room to roam."}, "DM": {"q2": {"water": "Your Saturday starts at the Des Moines Marina, with boats, the pier, and Puget Sound in front of you.", "yard": "Your Saturday starts at home, with a yard and the Sound a short drive away."}, "q2_default": "Your Saturday has the water close by, with the marina and the beach both a short trip from home.", "middle": "The marina, Beach Park, and Saltwater State Park put Puget Sound within easy reach. Homes include bungalows and mid-century houses, some with water views, plus condos near the waterfront.", "q7": {"bbq": "Evenings mean the grill with the Sound nearby."}, "q7_default": "Evenings offer dinner by the marina, then a walk on the pier.", "closer": "Des Moines puts Puget Sound at your doorstep, with the airport and the city close by.", "also": "Normandy Park for a peaceful waterfront setting, often priced higher. Federal Way for more options, often priced lower."}, "ENU": {"q2": {"trail": "Your Saturday starts early, with the Mount Rainier foothills and the trailheads at the edge of town.", "yard": "Your Saturday starts at home, with a property that gives you real room to work."}, "q2_default": "Your Saturday has Mount Rainier in view, and the foothills are a short drive from your door.", "middle": "Mount Rainier is the backdrop, and Crystal Mountain and Chinook Pass are in reach for day trips. Homes include houses on larger lots, hobby farms, and properties with acreage and mountain views.", "q7": {"bbq": "Evenings mean the grill and a big sky over your own land.", "hike": "Evenings end early, with the mountain ready for you in the morning."}, "q7_default": "Evenings offer dinner in the historic downtown, then home with Rainier in view.", "closer": "Enumclaw gives you the mountain, the space, and a hometown feel.", "also": "Ravensdale for more acreage, often priced higher."}}};
+
+const state = {
+  currentQuestionIndex: 0,
+  answers: {},
+  winner: null,
+  runnerUp: null,
+  allScores: {}
+};
+
+const welcomeScreen = document.getElementById('welcome-screen');
+const questionScreen = document.getElementById('question-screen');
+const resultScreen = document.getElementById('result-screen');
+const startBtn = document.getElementById('start-btn');
+const backBtn = document.getElementById('back-btn');
+const retakeBtn = document.getElementById('retake-btn');
+const shareBtn = document.getElementById('share-btn');
+const progressFill = document.getElementById('progress-fill');
+const questionStep = document.getElementById('question-step');
+const questionTitle = document.getElementById('question-title');
+const optionsContainer = document.getElementById('options-container');
+
+startBtn.addEventListener('click', () => {
+  welcomeScreen.style.display = 'none';
+  questionScreen.style.display = 'block';
+  renderQuestion(0);
+});
+
+backBtn.addEventListener('click', () => {
+  if (state.currentQuestionIndex > 0) {
+    renderQuestion(state.currentQuestionIndex - 1);
+  }
+});
+
+retakeBtn.addEventListener('click', () => {
+  state.currentQuestionIndex = 0;
+  state.answers = {};
+  state.winner = null;
+  state.runnerUp = null;
+  resultScreen.style.display = 'none';
+  questionScreen.style.display = 'block';
+  renderQuestion(0);
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+});
+
+function renderQuestion(index) {
+  state.currentQuestionIndex = index;
+  const q = QUIZ_DATA.questions[index];
+  const total = QUIZ_DATA.questions.length;
+  
+  progressFill.style.width = `${((index) / total) * 100}%`;
+  questionStep.textContent = `QUESTION ${index + 1} OF ${total}`;
+  questionTitle.textContent = q.text;
+  backBtn.style.visibility = index > 0 ? 'visible' : 'hidden';
+
+  optionsContainer.innerHTML = '';
+  q.answers.forEach(ans => {
+    const btn = document.createElement('button');
+    btn.className = 'option-btn';
+    if (state.answers[q.id] === ans.id) {
+      btn.classList.add('selected');
+    }
+    btn.innerHTML = `<span>${ans.label}</span> <span style="color:var(--gold); font-size:1.1rem;">›</span>`;
+    btn.addEventListener('click', () => {
+      state.answers[q.id] = ans.id;
+      // Brief visual selection before advancing
+      btn.classList.add('selected');
+      setTimeout(() => {
+        if (index + 1 < total) {
+          renderQuestion(index + 1);
+        } else {
+          finishQuiz();
+        }
+      }, 180);
+    });
+    optionsContainer.appendChild(btn);
+  });
+}
+
+function finishQuiz() {
+  questionScreen.style.display = 'none';
+  resultScreen.style.display = 'block';
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+
+  const regionId = state.answers["Q1"] || "all";
+  const eligibleCodes = QUIZ_DATA.regions[regionId] || QUIZ_DATA.regions["all"];
+  const areaKeys = Object.keys(QUIZ_DATA.areas);
+
+  const scores = {};
+  const weight2Subtotals = {};
+  const q12Points = {};
+
+  areaKeys.forEach(code => {
+    scores[code] = 0;
+    weight2Subtotals[code] = 0;
+    q12Points[code] = 0;
+  });
+
+  QUIZ_DATA.questions.forEach(q => {
+    if (q.id === "Q1") return;
+    const ansId = state.answers[q.id];
+    const ansObj = q.answers.find(a => a.id === ansId);
+    if (!ansObj) return;
+
+    const weight = q.weight;
+    const strong = ansObj.strong || [];
+    const partial = ansObj.partial || [];
+
+    strong.forEach(code => {
+      const pts = 2 * weight;
+      scores[code] = (scores[code] || 0) + pts;
+      if (weight === 2) weight2Subtotals[code] = (weight2Subtotals[code] || 0) + pts;
+      if (q.id === "Q12") q12Points[code] = (q12Points[code] || 0) + pts;
+    });
+
+    partial.forEach(code => {
+      const pts = 1 * weight;
+      scores[code] = (scores[code] || 0) + pts;
+      if (weight === 2) weight2Subtotals[code] = (weight2Subtotals[code] || 0) + pts;
+      if (q.id === "Q12") q12Points[code] = (q12Points[code] || 0) + pts;
+    });
+  });
+
+  // Tie break sorting:
+  // 1) total score desc
+  // 2) weight 2 subtotal desc
+  // 3) Q12 points desc
+  // 4) fixed order as listed in areas (lower index wins)
+  const ranked = [...eligibleCodes].sort((a, b) => {
+    if (scores[b] !== scores[a]) return scores[b] - scores[a];
+    if (weight2Subtotals[b] !== weight2Subtotals[a]) return weight2Subtotals[b] - weight2Subtotals[a];
+    if (q12Points[b] !== q12Points[a]) return q12Points[b] - q12Points[a];
+    return areaKeys.indexOf(a) - areaKeys.indexOf(b);
+  });
+
+  const winner = ranked[0];
+  const runnerUp = ranked[1] || "";
+  state.winner = winner;
+  state.runnerUp = runnerUp;
+  state.allScores = scores;
+
+  renderResultView(winner, runnerUp, regionId);
+}
+
+function renderResultView(winnerCode, runnerUpCode, regionId) {
+  const areaName = QUIZ_DATA.areas[winnerCode];
+  const runnerUpName = runnerUpCode ? QUIZ_DATA.areas[runnerUpCode] : "";
+  const resData = QUIZ_DATA.results[winnerCode];
+
+  // Title
+  document.getElementById('result-heading').textContent = QUIZ_DATA.meta.result_title_format.replace('{area}', areaName);
+
+  // 3 Paragraph Story
+  const q2Ans = state.answers["Q2"];
+  const q2Opening = (resData.q2 && resData.q2[q2Ans]) ? resData.q2[q2Ans] : resData.q2_default;
+  const middle = resData.middle;
+  const p1Text = `${q2Opening} ${middle}`;
+
+  const q7Ans = state.answers["Q7"];
+  const q7Closing = (resData.q7 && resData.q7[q7Ans]) ? resData.q7[q7Ans] : resData.q7_default;
+  const p2Text = q7Closing;
+
+  const closer = resData.closer;
+  const p3Text = closer;
+
+  const paragraphsContainer = document.getElementById('result-paragraphs');
+  paragraphsContainer.innerHTML = `
+    <p>${p1Text}</p>
+    <p>${p2Text}</p>
+    <p>${p3Text}</p>
+  `;
+
+  // Also look at
+  document.getElementById('also-title').textContent = QUIZ_DATA.meta.also_format.replace('{area}', areaName);
+  document.getElementById('also-body').textContent = resData.also;
+
+  // Guide CTA body
+  document.getElementById('guide-subhead').textContent = QUIZ_DATA.meta.guide_cta.body.replace('{area}', areaName);
+
+  // Populate hidden form fields
+  document.getElementById('field_matched_area').value = `${areaName} (${winnerCode})`;
+  document.getElementById('field_second_place_area').value = runnerUpName ? `${runnerUpName} (${runnerUpCode})` : 'N/A';
+  document.getElementById('field_region_chosen').value = regionId;
+  const readableAnswers = QUIZ_DATA.questions.map(q => {
+    const ansId = state.answers[q.id];
+    const ansObj = q.answers.find(a => a.id === ansId);
+    return `${q.id}: ${ansObj ? ansObj.label : (ansId || 'N/A')}`;
+  }).join(' | ');
+  document.getElementById('field_all_answers').value = readableAnswers;
+
+  // Setup Share
+  const shareText = QUIZ_DATA.meta.share.text.replace('{area}', areaName);
+  shareBtn.onclick = () => {
+    if (navigator.share) {
+      navigator.share({
+        title: QUIZ_DATA.meta.title,
+        text: shareText,
+        url: window.location.href
+      }).catch(() => {});
+    } else {
+      navigator.clipboard.writeText(`${shareText} ${window.location.href}`).then(() => {
+        const orig = shareBtn.textContent;
+        shareBtn.textContent = 'Copied!';
+        setTimeout(() => { shareBtn.textContent = orig; }, 2000);
+      }).catch(() => {
+        prompt("Copy this text:", `${shareText} ${window.location.href}`);
+      });
+    }
+  };
+}
+
+// Handle Form Submission with AJAX & Web3Forms
+const guideForm = document.getElementById('guide-form');
+const formFeedback = document.getElementById('form-feedback');
+const submitBtn = document.getElementById('guide-submit-btn');
+
+guideForm.addEventListener('submit', function(e) {
+  // If access key is placeholder, warn politely or submit
+  const accessKeyInput = guideForm.querySelector('input[name="access_key"]');
+  if (accessKeyInput && accessKeyInput.value === 'YOUR_ACCESS_KEY') {
+    e.preventDefault();
+    formFeedback.style.display = 'block';
+    formFeedback.style.background = '#fcf2e3';
+    formFeedback.style.color = '#875107';
+    formFeedback.innerHTML = '<strong>Demo Note:</strong> The form is wired to Web3Forms and ready for submissions. Replace <code>YOUR_ACCESS_KEY</code> with your real Web3Forms key to receive leads by email.';
+    return;
+  }
+
+  // If real key exists, submit via fetch
+  e.preventDefault();
+  submitBtn.disabled = true;
+  submitBtn.textContent = 'Sending...';
+
+  const formData = new FormData(guideForm);
+  fetch('https://api.web3forms.com/submit', {
+    method: 'POST',
+    body: formData
+  })
+  .then(res => res.json())
+  .then(data => {
+    if (data.success) {
+      guideForm.reset();
+      formFeedback.style.display = 'block';
+      formFeedback.style.background = '#eef6f0';
+      formFeedback.style.color = '#1e5a2f';
+      formFeedback.textContent = "Thank you! Your personalized guide request has been received. I'll be in touch shortly.";
+      submitBtn.style.display = 'none';
+    } else {
+      throw new Error(data.message || 'Submission error');
+    }
+  })
+  .catch(err => {
+    formFeedback.style.display = 'block';
+    formFeedback.style.background = '#fdf2f2';
+    formFeedback.style.color = '#9b1c1c';
+    formFeedback.textContent = "There was an error sending your request. Please call or text Dave directly at (206) 719-3059.";
+    submitBtn.disabled = false;
+    submitBtn.textContent = "Send me my guide";
+  });
+});
+</script>
+
+</body>
+</html>
